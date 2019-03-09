@@ -1,0 +1,1 @@
+emulator -netdelay none -netspeed full -avd nexus5x -gpu host
