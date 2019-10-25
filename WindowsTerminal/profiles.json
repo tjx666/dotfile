@@ -1,0 +1,47 @@
+// To view the default settings, hold "alt" while clicking on the "Settings" button.
+// For documentation on these settings, see: https://aka.ms/terminal-documentation
+
+{
+    "$schema": "https://aka.ms/terminal-profiles-schema",
+  
+    "defaultProfile": "{1d4e097e-fe87-4164-97d7-3ca794c316fd}",
+  
+    "profiles": [
+      {
+        "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
+        "name": "Windows PowerShell",
+        "commandline": "powershell.exe",
+        "hidden": false
+      },
+      {
+        "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
+        "name": "cmd",
+        "commandline": "cmd.exe",
+        "hidden": false
+      },
+      {
+        "guid": "{b453ae62-4e3d-5e58-b989-0a998ec441b8}",
+        "hidden": false,
+        "name": "Azure Cloud Shell",
+        "source": "Windows.Terminal.Azure"
+      },
+      {
+        "name": "Bash",
+        "guid": "{1d4e097e-fe87-4164-97d7-3ca794c316fd}",
+        "commandline": "C:\\applications\\Git\\bin\\bash.exe",
+        "hidden": false,
+        "startingDirectory": "%USERPROFILE%",
+        "icon": "C:\\applications\\Git\\bash-icon.png",
+        "acrylicOpacity": 0.7,
+        "useAcrylic": true,
+        "fontFace": "Monaco",
+        "fontSize": 12,
+        "historySize": 3000
+      }
+    ],
+  
+    "schemes": [],
+  
+    "keybindings": []
+  }
+  
