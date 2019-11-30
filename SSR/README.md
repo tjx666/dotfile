@@ -39,21 +39,26 @@ chmod +x shadowsocks-all.sh
 6. 选择完毕就敲回车开始安装，安装完成后当前路径下还会有一个 log 文件和二维码图片
 7. 保险起见建议重启一下 VPS
 
-另外如果需要更改SSR的相关配置参数，配置文件位置在：`/etc/shadowsocks-r/config.json`
+另外如果需要更改 SSR 的相关配置参数，配置文件位置在：`/etc/shadowsocks-r/config.json`
 
-如果有碰到使用 ssh 连接 vultr VPS 本地输入卡慢的情况，可以试试使用 mosh 来连接：
+## kcptun 加速
 
->mosh 需要服务器和客户端都安装了 mosh。
->
->我用的是 mac，本地可以直接通过 `brew install mosh` 安装，在使用 ssh 连接上 VPS 后，使用 `apt install mosh` 安装 mosh 服务器。
->
->mosh 的使用方法和 ssh 一样：`mosh root@vps-ip`
->
->连接过程中可能会报错服务器和客户端字符集不一致问题，比如 VPS 没有中文字符集，解决方法就是修改 `/ect/locale.gen` 文件，将 `zh_CN.UTF-8` 注释打开，再运行 `locale-gen` 命令生成中文字符集。
->
->最后修改 `/etc/default/locale` 中 `LANG=zh_CN.UTF-8`，也可以不修改， mosh 连接时会根据你客户端字符集自动修改。
->
->修改字符集也可以通过命令 `dpkg-reconfigure locales` 以图形化的方式来配置。
+![kcptun](https://raw.githubusercontent.com/xtaci/kcptun/master/kcptun.png)
+
+### 安装 kcptun 服务器
+
+```bash
+wget --no-check-certificate https://github.com/kuoruan/shell-scripts/raw/master/kcptun/kcptun.sh
+chmod +x ./kcptun.sh
+./kcptun.sh
+```
+
+需要注意的是加密方式建议选择不加密或者 aes。
+
+参考教程：
+
+- [超级加速工具 KCPTUN 一键安装脚本 附 100 倍加速效果图](https://ssr.tools/588)
+- [KCPTUN Windows 客户端下载安装及使用教程 带图形化界面](https://ssr.tools/607)
 
 相关链接：
 
@@ -65,3 +70,5 @@ chmod +x shadowsocks-all.sh
 1. [windows SSR 客户端](https://github.com/shadowsocksrr/shadowsocksr-csharp/releases/download/4.9.0/ShadowsocksR-win-4.9.0.zip)
 2. [mac SSR 客户端](https://github.com/qinyuhang/ShadowsocksX-NG-R/releases/download/1.4.4-r8/ShadowsocksX-NG-R8.dmg)
 3. [android SSR 客户端](https://github.com/shadowsocksrr/shadowsocksr-android/releases/download/3.5.4/shadowsocksr-android-3.5.4.apk)
+4. [kcptun 命令行客户端](https://github.com/xtaci/kcptun/releases/download/v20190109/kcptun-windows-amd64-20190109.tar.gz)
+5. [kcptun GUI](https://github.com/dfdragon/kcptun_gclient/releases/download/v1.1.3/kcptun_gclientv.1.1.3.zip)
