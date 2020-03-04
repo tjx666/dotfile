@@ -34,7 +34,6 @@
       "tabTitle": "Bash",
       "commandline": "C:\\applications\\Git\\bin\\bash.exe",
       "hidden": false,
-      "startingDirectory": "%USERPROFILE%",
       "closeOnExit": true,
       "snapOnInput": true,
       "colorScheme": "Campbell",
