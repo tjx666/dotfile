@@ -385,6 +385,5 @@ endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => custom
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-packadd! onedark.vim
-colorscheme onedark
-let g:airline_theme='onedark'
+colorscheme gruvbox
+let g:airline_theme='gruvbox'
