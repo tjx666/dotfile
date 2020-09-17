@@ -82,13 +82,18 @@ plugins+=(
   brew
   gem
   git
+  iterm2
   npm
+  node
+  osx
   pod
   sudo
   themes
   vscode
+  web-search
   yarn
   z
+  command-not-found
 )
 # unofficial
 plugins+=(
@@ -136,8 +141,8 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 
 # proxy
 proxy () {
-  export http_proxy="http://127.0.0.1:7890"
-  export https_proxy="http://127.0.0.1:7890"
+  export http_proxy="http://127.0.0.1:4780"
+  export https_proxy="http://127.0.0.1:4780"
   echo "HTTP Proxy on"
 }
 
@@ -147,6 +152,9 @@ noproxy () {
   unset https_proxy
   echo "HTTP Proxy off"
 }
+
+# alias
+alias update_all='brew update && yarn global upgrade --latest && omz update && git -C ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k pull'
 
 # fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
