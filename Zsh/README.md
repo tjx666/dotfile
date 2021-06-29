@@ -1,0 +1,1 @@
+ohmyzsh + powerlevel10k

@@ -71,6 +71,9 @@ HIST_STAMPS="yyyy-mm-dd"
 # Would you like to use another custom folder than $ZSH/custom?
 # ZSH_CUSTOM=/path/to/new-custom-folder
 
+# Configure the vscode plugin
+VSCODE=code-insiders
+
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
@@ -99,9 +102,9 @@ plugins+=(
 plugins+=(
   zsh-autosuggestions
   zsh-syntax-highlighting
-  zsh-nvm
   zsh-better-npm-completion
   yarn-autocompletions
+  flutter
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -135,26 +138,10 @@ source $ZSH/oh-my-zsh.sh
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-# custom
+# nvm
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-
-# proxy
-proxy () {
-  export http_proxy="http://127.0.0.1:4780"
-  export https_proxy="http://127.0.0.1:4780"
-  echo "HTTP Proxy on"
-}
-
-# close proxy
-noproxy () {
-  unset http_proxy
-  unset https_proxy
-  echo "HTTP Proxy off"
-}
-
-# alias
-alias update_all='brew update && yarn global upgrade --latest && omz update && git -C ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k pull'
+[ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 # fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
@@ -162,6 +149,84 @@ alias update_all='brew update && yarn global upgrade --latest && omz update && g
 # iterm2
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
+proxyWithoutPrompt() {
+  export http_proxy="http://127.0.0.1:7890"
+  export https_proxy="http://127.0.0.1:7890"
+  export all_proxy="socks5://127.0.0.1:7890"
+  export no_proxy="localhost,127.0.0.1"
+
+  export HTTP_PROXY="http://127.0.0.1:7890"
+  export HTTPS_PROXY="http://127.0.0.1:7890"
+  export ALL_PROXY="socks5://127.0.0.1:7890"
+  export NO_PROXY="localhost,127.0.0.1,172.16.5.83"
+}
+
+proxyWithoutPrompt
+
+# proxy
+proxy () {
+  proxyWithoutPrompt
+  echo "HTTP Proxy on"
+}
+
+noproxy () {
+  unset http_proxy
+  unset https_proxy
+  unset all_proxy
+  unset no_proxy
+  unset HTTP_PROXY
+  unset HTTPS_PROXY
+  unset ALL_PROXY
+  unset NO_PROXY
+  echo "HTTP Proxy off"
+}
+
+# alias
+alias update_all='brew update && yarn global upgrade --latest && omz update && git -C ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k pull'
+
 # language
 export LC_ALL=en_US.UTF-8
 export LC_CTYPE=en_US.UTF-8
+
+# export PATH=/Users/yutengjing/code/depot_tools:$PATH
+export PATH=$PATH:/Users/yutengjing/apps/flutter/1.22.4/bin
+export PATH=$PATH:/Users/yutengjing/apps/flutter/1.22.4/.pub-cache/bin
+
+sfv() {
+  export PATH=/Users/yutengjing/apps/flutter/$1/bin:$PATH
+  export PATH=/Users/yutengjing/apps/flutter/$1/.pub-cache/bin:$PATH
+}
+
+if [ "$YTJ_FLUTTER_VERSION" = "latest" ]; then
+    sfv latest
+fi
+
+# flutter mirror
+export PUB_HOSTED_URL=https://pub.flutter-io.cn
+export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
+
+# java
+PATH=/usr/local/opt/openjdk@11/bin:$PATH
+export JAVA_HOME=$(/usr/libexec/java_home)
+export CPPFLAGS="-I/usr/local/opt/openjdk@11/include"
+
+# Emscripten
+export PATH=$PATH:/Users/yutengjing/apps/emsdk
+export PATH=$PATH:/Users/yutengjing/apps/emsdk/upstream/emscripten
+export PATH=$PATH:/Users/yutengjing/apps/emsdk/node/12.18.1_64bit/bin
+export PATH=$PATH:/Users/yutengjing/apps/emsdk/python/3.7.4-2_64bit/bin
+export EMSDK=/Users/yutengjing/apps/emsdk
+export EM_CONFIG=/Users/yutengjing/apps/emsdk/.emscripten
+export EM_CACHE=/Users/yutengjing/apps/emsdk/upstream/emscripten/cache
+export EMSDK_NODE=/Users/yutengjing/apps/emsdk/node/12.18.1_64bit/bin/node
+export EMSDK_PYTHON=/Users/yutengjing/apps/emsdk/python/3.7.4-2_64bit/bin/python3
+
+# android
+export PATH=$PATH:/Users/yutengjing/Library/Android/sdk/platform-tools
+
+# react native
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/tools
+export PATH=$PATH:$ANDROID_HOME/tools/bin
+export PATH=$PATH:$ANDROID_HOME/platform-tools
