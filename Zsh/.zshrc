@@ -89,23 +89,31 @@ HIST_STAMPS="yyyy-mm-dd"
 # official
 plugins+=(
   alias-finder
+  command-not-found
+  extract
+  gh
+  hitokoto
+  rust
+  safe-paste
   sudo
   themes
   z
-  command-not-found
-  rust
-  safe-paste
-  extract
-  hitokoto
 )
 
 # unofficial
 plugins+=(
-  zsh-autosuggestions
-  zsh-syntax-highlighting
-  zsh-better-npm-completion
   yarn-autocompletions
+  zsh-autosuggestions
+  zsh-better-npm-completion
+  zsh-syntax-highlighting
 )
+
+if [[ "$TERM_PROGRAM" == "vscode" ]]; then
+else
+    plugins+=(
+      git-auto-fetch
+    )
+fi
 
 source $ZSH/oh-my-zsh.sh
 

@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
-    "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
     <array>
         <string>192.168.0.0/16</string>
@@ -7,11 +7,21 @@
         <string>172.16.0.0/12</string>
         <string>127.0.0.1</string>
         <string>172.16.5.83</string>
+        <string>172.16.2.31</string>
         <string>localhost</string>
         <string>*.local</string>
         <string>*.crashlytics.com</string>
         <string>*.gaoding.com</string>
         <string>*.gaoding.cn</string>
         <string>*.huanleguang.com</string>
+        <string>*.antdv.com</string>
+        <string>*.iconfont.cn</string>
+        <string>*.baidu.com</string>
+        <string>*.zhihu.com</string>
+        <string>*.yuque.com</string>
+        <string>*.juejin.cn</string>
+        <string>sentry.hlgdata.com</string>
+        <string>www.bilibili.com</string>
+        <string>*.qq.com</string>
     </array>
 </plist>
