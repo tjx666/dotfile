@@ -11,17 +11,53 @@
         <string>localhost</string>
         <string>*.local</string>
         <string>*.crashlytics.com</string>
+
+        <!-- 稿定 -->
         <string>*.gaoding.com</string>
         <string>*.gaoding.cn</string>
         <string>*.huanleguang.com</string>
+        <string>sentry.hlgdata.com</string>
+
+        <!-- 知乎 -->
+        <string>*.zhihu.com</string>
+        <string>*.zhimg.com</string>
+
+        <!-- 掘金 -->
+        <string>*.bytescm.com</string>
+        <string>juejin.cn</string>
+        <string>*.juejin.cn</string>
+
+        <!-- b 站 -->
+        <string>*.bilibili.com</string>
+        <string>*.szbdyd.com</string>
+
+        <!-- VSCode -->
+        <string>*.visualstudio.com</string>
+        <string>*.azure.cn</string>
+
+        <!-- 钉钉 -->
+        <string>*.dingtalkapps.com</string>
+        <string>*.taobao.com</string>
+        <string>*.dingtalk.com</string>
+        <string>*.mmstat.com</string>
+
+        <!-- 百度 -->
+        <string>*.baidu.com</string>
+        <string>*.bdstatic.com</string>
+        <string>*.bdimg.com</string>
+        <string>*.bcebos.com</string>
+        <string>*.cdn.bcebos.com</string>
+
+        <string>*.k6dm.com</string>
+        <string>*.azure.cn</string>
+        <string>*.googleapis-cn.com</string>
+        <string>*.qq.com</string>
+        <string>*.npmmirror.com</string>
+        <string>*.iqiyi.com</string>
         <string>*.antdv.com</string>
         <string>*.iconfont.cn</string>
-        <string>*.baidu.com</string>
-        <string>*.zhihu.com</string>
+        <string>easyv.cloud</string>
+        <string>*.easyv.cloud</string>
         <string>*.yuque.com</string>
-        <string>*.juejin.cn</string>
-        <string>sentry.hlgdata.com</string>
-        <string>www.bilibili.com</string>
-        <string>*.qq.com</string>
     </array>
 </plist>

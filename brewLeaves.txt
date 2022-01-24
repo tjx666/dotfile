@@ -9,6 +9,8 @@ exa
 fd
 ffmpeg
 folly
+fselect
+fx
 fzf
 gdk-pixbuf
 gh
