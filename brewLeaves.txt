@@ -32,6 +32,7 @@ lua
 luajit
 lzlib
 mas
+neofetch
 neovim
 nghttp2
 orf/brew/gping
@@ -40,7 +41,6 @@ perl
 procs
 ripgrep
 rtmpdump
-screenresolution
 tealdeer
 tokei
 tree

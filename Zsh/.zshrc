@@ -1,9 +1,10 @@
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
+source /Users/yutengjing/.cache/p10k-instant-prompt-yutengjing.zsh
+# if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+#   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+# fi
 
 # zsh-autopair
 # if [[ ! -d ~/.zsh-autopair ]]; then
@@ -11,6 +12,8 @@ fi
 # fi
 # source ~/.zsh-autopair/autopair.zsh
 # autopair-init
+
+export PATH="/usr/local/sbin:$PATH"
 
 # zsh-syntax-highlighting
 ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor regexp root line)
@@ -108,11 +111,10 @@ plugins+=(
   zsh-syntax-highlighting
 )
 
-if [[ "$TERM_PROGRAM" == "vscode" ]]; then
-else
-    plugins+=(
-      git-auto-fetch
-    )
+if [[ "$TERM_PROGRAM" != "vscode" ]]; then
+  plugins+=(
+    git-auto-fetch
+  )
 fi
 
 source $ZSH/oh-my-zsh.sh
@@ -148,8 +150,8 @@ export LANG=en_US.UTF-8
 
 # nvm
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"                   # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
 
 # fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
@@ -160,8 +162,9 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 # broot
 source /Users/yutengjing/.config/broot/launcher/bash/br
 
+# ------------------------ functions -----------------------------
 # proxy
-proxyWithoutPrompt() {
+function proxyWithoutPrompt() {
   export http_proxy="http://127.0.0.1:7890"
   export https_proxy="http://127.0.0.1:7890"
   export all_proxy="socks5://127.0.0.1:7890"
@@ -173,12 +176,12 @@ proxyWithoutPrompt() {
   export NO_PROXY="localhost,127.0.0.1,172.16.5.83,.gaoding.com,.gaoding.cn,.huanleguang.com"
 }
 
-proxy () {
+function proxy() {
   proxyWithoutPrompt
   echo "HTTP Proxy on"
 }
 
-noproxy () {
+function noproxy() {
   unset http_proxy
   unset https_proxy
   unset all_proxy
@@ -195,18 +198,107 @@ function node-docs {
   open_command "https://nodejs.org/docs/$(node --version)/api/$section.html"
 }
 
-# alias
-alias update_all='brew update && brew upgrade && brew upgrade --cask && brew cleanup && pnpm upgrade -g --latest && omz update && git -C ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k pull'
-alias enable_cep_debug="defaults write com.adobe.CSXS.11 PlayerDebugMode 1"
-alias disable_cep_debug="defaults write com.adobe.CSXS.11 PlayerDebugMode 0"
+function update-nvm {
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+}
+
+function ls-path {
+  echo -e ${PATH//:/\\n}
+}
+
+function file-count {
+  ls $1 | wc -l
+}
+
+function uninstall-vscode-insiders {
+  rm -rv ~/Library/Preferences/com.microsoft.VSCodeInsiders.plist 2>/dev/null
+  rm -rv ~/Library/Caches/com.microsoft.VSCodeInsiders 2>/dev/null
+  rm -rv ~/Library/Caches/com.microsoft.VSCodeInsiders.ShipIt 2>/dev/null
+  rm -rv ~/Library/Application\ Support/Code\ -\ Insiders 2>/dev/null
+  rm -rv ~/Library/Saved\ Application\ State/com.microsoft.VSCodeInsiders.savedState/ 2>/dev/null
+  rm -rv ~/.vscode-insiders/ 2>/dev/null
+}
+
+function uninstall-vscode {
+  rm -rv ~/Library/Preferences/com.microsoft.VSCode.plist 2>/dev/null
+  rm -rv ~/Library/Caches/com.microsoft.VSCode 2>/dev/null
+  rm -rv ~/Library/Caches/com.microsoft.VSCode.ShipIt 2>/dev/null
+  rm -rv ~/Library/Application\ Support/Code 2>/dev/null
+  rm -rv ~/Library/Saved\ Application\ State/com.microsoft.VSCode.savedState/ 2>/dev/null
+  rm -rv ~/.vscode/ 2>/dev/null
+}
+
+function ver {
+  echo "MacOS: ${$(sw_vers | sed '2q;d'):16}
+VSCode: $(code-insiders --version | head -n 1)
+Typescript: ${$(tsc --version):8}
+Node: $(node --version)
+Npm: $(npm --version)
+Yarn: $(yarn --version)
+Pnpm: $(pnpm --version)
+Rustc: ${$(rustc --version):6}
+Go: ${$(go version):13}
+Python3: ${$(python3 --version):7}"
+}
+
+function listening() {
+  if [ $# -eq 0 ]; then
+    sudo lsof -iTCP -sTCP:LISTEN -n -P
+  elif [ $# -eq 1 ]; then
+    sudo lsof -iTCP -sTCP:LISTEN -n -P | grep -i --color $1
+  else
+    echo "Usage: listening [pattern]"
+  fi
+}
+
+# 将下划线和中划线视为和普通字母一样作为一个单词的一部分
+WORDCHARS+='_-'
+
+# bindkey
+bindkey '^[SE' autosuggest-execute
 
 # language
 export LC_ALL=en_US.UTF-8
 export LC_CTYPE=en_US.UTF-8
 
-# environment variables
+# ------------------------ alias -----------------------------
+alias update_all='brew update && brew upgrade && brew upgrade --cask && brew cleanup && update-nvm && pnpm upgrade -g --latest && rustup update && omz update && git -C ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k pull'
+alias enable_cep_debug="defaults write com.adobe.CSXS.11 PlayerDebugMode 1"
+alias disable_cep_debug="defaults write com.adobe.CSXS.11 PlayerDebugMode 0"
+alias lah="lsd -lah"
+alias ga="git add -A"
+alias gp="git push"
+alias gcm="git commit -m"
+alias gc="git checkout"
+alias gcb="git checkout -b"
+alias gcl="git clone"
+alias rc="code-insiders ~/.zshrc"
+alias c="code-insiders"
 
-export PATH="/usr/local/sbin:$PATH"
+# node package manager
+alias nid="ni -D"
+alias nio="ni --prefer-offline"
+alias s="nr start"
+
+# ------------------------ directory -----------------------------
+function i() {
+  cd ~/code/$1
+}
+
+# ------------------------ environment variables -----------------------------
+export PNPM_HOME="/Users/yutengjing/Library/pnpm"
+export PATH="$PNPM_HOME:$PATH"
+
+# set node_modules/.bin to path when in VSCode terminal
+if [[ "$TERM_PROGRAM" == "vscode" && -d "$PWD/node_modules/.bin" ]]; then
+  export PATH="$PWD/node_modules/.bin:$PATH"
+fi
+
+# gvm
+[[ -s "/Users/yutengjing/.gvm/scripts/gvm" ]] && source "/Users/yutengjing/.gvm/scripts/gvm"
+
+# pnpm completion and environment variables
+[[ -f ~/.config/tabtab/zsh/__tabtab.zsh ]] && . ~/.config/tabtab/zsh/__tabtab.zsh || true
 
 # java
 # PATH=/usr/local/opt/openjdk@11/bin:$PATH
