@@ -2,16 +2,6 @@
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
 source /Users/yutengjing/.cache/p10k-instant-prompt-yutengjing.zsh
-# if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-#   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-# fi
-
-# zsh-autopair
-# if [[ ! -d ~/.zsh-autopair ]]; then
-#   git clone https://github.com/hlissner/zsh-autopair ~/.zsh-autopair
-# fi
-# source ~/.zsh-autopair/autopair.zsh
-# autopair-init
 
 export PATH="/usr/local/sbin:$PATH"
 
@@ -105,12 +95,12 @@ plugins+=(
 
 # unofficial
 plugins+=(
-  yarn-autocompletions
+  zsh-npm-scripts-autocomplete
   zsh-autosuggestions
-  zsh-better-npm-completion
   zsh-syntax-highlighting
 )
 
+# load plugins in none vscode integrated terminal
 if [[ "$TERM_PROGRAM" != "vscode" ]]; then
   plugins+=(
     git-auto-fetch
@@ -148,10 +138,42 @@ export LANG=en_US.UTF-8
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
+# 将下划线和中划线视为和普通字母一样作为一个单词的一部分
+WORDCHARS+='_-'
+
+# bindkey
+bindkey '^[SE' autosuggest-execute
+
+# language
+export LC_ALL=en_US.UTF-8
+export LC_CTYPE=en_US.UTF-8
+
 # nvm
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"                   # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
+
+# call nvm use automatically whenever you enter a directory that contains an .nvmrc file with a string telling nvm which node to use
+autoload -U add-zsh-hook
+load-nvmrc() {
+  local node_version="$(nvm version)"
+  local nvmrc_path="$(nvm_find_nvmrc)"
+
+  if [ -n "$nvmrc_path" ]; then
+    local nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
+
+    if [ "$nvmrc_node_version" = "N/A" ]; then
+      nvm install
+    elif [ "$nvmrc_node_version" != "$node_version" ]; then
+      nvm use --silent
+    fi
+  elif [ "$node_version" != "$(nvm version default)" ]; then
+    echo "Reverting to nvm default version"
+    nvm use default --silent
+  fi
+}
+add-zsh-hook chpwd load-nvmrc
+load-nvmrc
 
 # fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
@@ -159,11 +181,13 @@ export NVM_DIR="$HOME/.nvm"
 # iterm2
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
-# broot
-source /Users/yutengjing/.config/broot/launcher/bash/br
+# gvm
+[[ -s "/Users/yutengjing/.gvm/scripts/gvm" ]] && source "/Users/yutengjing/.gvm/scripts/gvm"
 
-# ------------------------ functions -----------------------------
-# proxy
+# pnpm completion
+[[ -f ~/.config/tabtab/zsh/__tabtab.zsh ]] && . ~/.config/tabtab/zsh/__tabtab.zsh || true
+
+# ------------------------ proxy -----------------------------
 function proxyWithoutPrompt() {
   export http_proxy="http://127.0.0.1:7890"
   export https_proxy="http://127.0.0.1:7890"
@@ -193,24 +217,24 @@ function noproxy() {
   echo "HTTP Proxy off"
 }
 
-function node-docs {
+function node-docs() {
   local section=${1:-all}
   open_command "https://nodejs.org/docs/$(node --version)/api/$section.html"
 }
 
-function update-nvm {
+function update-nvm() {
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
 }
 
-function ls-path {
+function ls-path() {
   echo -e ${PATH//:/\\n}
 }
 
-function file-count {
+function file-count() {
   ls $1 | wc -l
 }
 
-function uninstall-vscode-insiders {
+function uninstall-vscode-insiders() {
   rm -rv ~/Library/Preferences/com.microsoft.VSCodeInsiders.plist 2>/dev/null
   rm -rv ~/Library/Caches/com.microsoft.VSCodeInsiders 2>/dev/null
   rm -rv ~/Library/Caches/com.microsoft.VSCodeInsiders.ShipIt 2>/dev/null
@@ -219,7 +243,7 @@ function uninstall-vscode-insiders {
   rm -rv ~/.vscode-insiders/ 2>/dev/null
 }
 
-function uninstall-vscode {
+function uninstall-vscode() {
   rm -rv ~/Library/Preferences/com.microsoft.VSCode.plist 2>/dev/null
   rm -rv ~/Library/Caches/com.microsoft.VSCode 2>/dev/null
   rm -rv ~/Library/Caches/com.microsoft.VSCode.ShipIt 2>/dev/null
@@ -228,7 +252,7 @@ function uninstall-vscode {
   rm -rv ~/.vscode/ 2>/dev/null
 }
 
-function ver {
+function ver() {
   echo "MacOS: ${$(sw_vers | sed '2q;d'):16}
 VSCode: $(code-insiders --version | head -n 1)
 Typescript: ${$(tsc --version):8}
@@ -241,6 +265,14 @@ Go: ${$(go version):13}
 Python3: ${$(python3 --version):7}"
 }
 
+function n() {
+  if [[ ${1##*.} == 'ts' ]]; then
+    ts-node $@
+  else
+    node $@
+  fi
+}
+
 function listening() {
   if [ $# -eq 0 ]; then
     sudo lsof -iTCP -sTCP:LISTEN -n -P
@@ -251,27 +283,33 @@ function listening() {
   fi
 }
 
-# 将下划线和中划线视为和普通字母一样作为一个单词的一部分
-WORDCHARS+='_-'
+function i() {
+  cd ~/code/$1
+}
 
-# bindkey
-bindkey '^[SE' autosuggest-execute
-
-# language
-export LC_ALL=en_US.UTF-8
-export LC_CTYPE=en_US.UTF-8
+function mc() {
+  mkdir $1 && c $1
+}
 
 # ------------------------ alias -----------------------------
-alias update_all='brew update && brew upgrade && brew upgrade --cask && brew cleanup && update-nvm && pnpm upgrade -g --latest && rustup update && omz update && git -C ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k pull'
+alias update_all='brew update && brew upgrade && brew upgrade --cask && brew cleanup && update-nvm && npm upgrade -g --latest && rustup update && omz update && git -C ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k pull'
+alias lstcp="sudo lsof -iTCP -sTCP:LISTEN -P -n"
+alias lah="lsd -lah"
+
+# CEP debug mode
 alias enable_cep_debug="defaults write com.adobe.CSXS.11 PlayerDebugMode 1"
 alias disable_cep_debug="defaults write com.adobe.CSXS.11 PlayerDebugMode 0"
-alias lah="lsd -lah"
+
+# git
 alias ga="git add -A"
 alias gp="git push"
+alias gpl="git pull"
 alias gcm="git commit -m"
 alias gc="git checkout"
 alias gcb="git checkout -b"
 alias gcl="git clone"
+
+# vscode
 alias rc="code-insiders ~/.zshrc"
 alias c="code-insiders"
 
@@ -279,11 +317,6 @@ alias c="code-insiders"
 alias nid="ni -D"
 alias nio="ni --prefer-offline"
 alias s="nr start"
-
-# ------------------------ directory -----------------------------
-function i() {
-  cd ~/code/$1
-}
 
 # ------------------------ environment variables -----------------------------
 export PNPM_HOME="/Users/yutengjing/Library/pnpm"
@@ -293,55 +326,3 @@ export PATH="$PNPM_HOME:$PATH"
 if [[ "$TERM_PROGRAM" == "vscode" && -d "$PWD/node_modules/.bin" ]]; then
   export PATH="$PWD/node_modules/.bin:$PATH"
 fi
-
-# gvm
-[[ -s "/Users/yutengjing/.gvm/scripts/gvm" ]] && source "/Users/yutengjing/.gvm/scripts/gvm"
-
-# pnpm completion and environment variables
-[[ -f ~/.config/tabtab/zsh/__tabtab.zsh ]] && . ~/.config/tabtab/zsh/__tabtab.zsh || true
-
-# java
-# PATH=/usr/local/opt/openjdk@11/bin:$PATH
-# export JAVA_HOME=$(/usr/libexec/java_home)
-# export CPPFLAGS="-I/usr/local/opt/openjdk@11/include"
-
-# mysql
-# PATH=$PATH:/usr/local/mysql/bin
-
-# export PATH=/Users/yutengjing/code/depot_tools:$PATH
-# export PATH=$PATH:/Users/yutengjing/apps/flutter/1.22.4/bin
-# export PATH=$PATH:/Users/yutengjing/apps/flutter/1.22.4/.pub-cache/bin
-
-# sfv() {
-#   export PATH=/Users/yutengjing/apps/flutter/$1/bin:$PATH
-#   export PATH=/Users/yutengjing/apps/flutter/$1/.pub-cache/bin:$PATH
-# }
-
-# if [ "$YTJ_FLUTTER_VERSION" = "latest" ]; then
-#     sfv latest
-# fi
-
-# flutter mirror
-# export PUB_HOSTED_URL=https://pub.flutter-io.cn
-# export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
-
-# Emscripten
-# export PATH=$PATH:/Users/yutengjing/apps/emsdk
-# export PATH=$PATH:/Users/yutengjing/apps/emsdk/upstream/emscripten
-# export PATH=$PATH:/Users/yutengjing/apps/emsdk/node/12.18.1_64bit/bin
-# export PATH=$PATH:/Users/yutengjing/apps/emsdk/python/3.7.4-2_64bit/bin
-# export EMSDK=/Users/yutengjing/apps/emsdk
-# export EM_CONFIG=/Users/yutengjing/apps/emsdk/.emscripten
-# export EM_CACHE=/Users/yutengjing/apps/emsdk/upstream/emscripten/cache
-# export EMSDK_NODE=/Users/yutengjing/apps/emsdk/node/12.18.1_64bit/bin/node
-# export EMSDK_PYTHON=/Users/yutengjing/apps/emsdk/python/3.7.4-2_64bit/bin/python3
-
-# android
-# export PATH=$PATH:/Users/yutengjing/Library/Android/sdk/platform-tools
-
-# react native
-# export ANDROID_HOME=$HOME/Library/Android/sdk
-# export PATH=$PATH:$ANDROID_HOME/emulator
-# export PATH=$PATH:$ANDROID_HOME/tools
-# export PATH=$PATH:$ANDROID_HOME/tools/bin
-# export PATH=$PATH:$ANDROID_HOME/platform-tools
