@@ -1,7 +1,7 @@
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
-source /Users/yutengjing/.cache/p10k-instant-prompt-yutengjing.zsh
+[[ -f ~/.cache/p10k-instant-prompt-yutengjing.zsh ]] && source ~/.cache/p10k-instant-prompt-yutengjing.zsh
 
 export PATH="/usr/local/sbin:$PATH"
 
@@ -83,14 +83,11 @@ HIST_STAMPS="yyyy-mm-dd"
 plugins+=(
   alias-finder
   command-not-found
-  extract
-  gh
-  hitokoto
+  # hitokoto
   rust
   safe-paste
   sudo
   themes
-  z
 )
 
 # unofficial
@@ -98,6 +95,8 @@ plugins+=(
   zsh-npm-scripts-autocomplete
   zsh-autosuggestions
   zsh-syntax-highlighting
+  you-should-use
+  fzf-tab
 )
 
 # load plugins in none vscode integrated terminal
@@ -142,41 +141,21 @@ export LANG=en_US.UTF-8
 WORDCHARS+='_-'
 
 # bindkey
-bindkey '^[SE' autosuggest-execute
+bindkey '^[[1;3B' autosuggest-execute
 
 # language
 export LC_ALL=en_US.UTF-8
 export LC_CTYPE=en_US.UTF-8
 
-# nvm
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"                   # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
-
-# call nvm use automatically whenever you enter a directory that contains an .nvmrc file with a string telling nvm which node to use
-autoload -U add-zsh-hook
-load-nvmrc() {
-  local node_version="$(nvm version)"
-  local nvmrc_path="$(nvm_find_nvmrc)"
-
-  if [ -n "$nvmrc_path" ]; then
-    local nvmrc_node_version=$(nvm version "$(cat "${nvmrc_path}")")
-
-    if [ "$nvmrc_node_version" = "N/A" ]; then
-      nvm install
-    elif [ "$nvmrc_node_version" != "$node_version" ]; then
-      nvm use --silent
-    fi
-  elif [ "$node_version" != "$(nvm version default)" ]; then
-    echo "Reverting to nvm default version"
-    nvm use default --silent
-  fi
-}
-add-zsh-hook chpwd load-nvmrc
-load-nvmrc
+# fnm
+eval "$(fnm env --use-on-cd --log-level error)"
+# https://github.com/Schniz/fnm/issues/491#issuecomment-878187041
+fpath+=~/.zfunc
 
 # fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+bindkey "ç" fzf-cd-widget
+zstyle ':fzf-tab:*' accept-line alt-down
 
 # iterm2
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
@@ -187,7 +166,12 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 # pnpm completion
 [[ -f ~/.config/tabtab/zsh/__tabtab.zsh ]] && . ~/.config/tabtab/zsh/__tabtab.zsh || true
 
+# zoxide
+eval "$(zoxide init zsh)"
+
 # ------------------------ proxy -----------------------------
+TIMEFMT=$'\nTime %E Memory %MKiB CPU %P'
+
 function proxyWithoutPrompt() {
   export http_proxy="http://127.0.0.1:7890"
   export https_proxy="http://127.0.0.1:7890"
@@ -222,10 +206,6 @@ function node-docs() {
   open_command "https://nodejs.org/docs/$(node --version)/api/$section.html"
 }
 
-function update-nvm() {
-  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-}
-
 function ls-path() {
   echo -e ${PATH//:/\\n}
 }
@@ -253,24 +233,19 @@ function uninstall-vscode() {
 }
 
 function ver() {
-  echo "MacOS: ${$(sw_vers | sed '2q;d'):16}
-VSCode: $(code-insiders --version | head -n 1)
-Typescript: ${$(tsc --version):8}
+  local go_version=$(go version)
+  go_version=${go_version:13}
+
+  echo "MacOS: $(sw_vers | sed '2q;d' | cut -f 3)
+VSCode: $(c --version | head -n 1)
+Typescript: $(tsc --version | cut -d ' ' -f 2)
 Node: $(node --version)
 Npm: $(npm --version)
 Yarn: $(yarn --version)
 Pnpm: $(pnpm --version)
-Rustc: ${$(rustc --version):6}
-Go: ${$(go version):13}
-Python3: ${$(python3 --version):7}"
-}
-
-function n() {
-  if [[ ${1##*.} == 'ts' ]]; then
-    ts-node $@
-  else
-    node $@
-  fi
+Rustc: $(rustc --version | cut -d ' ' -f 2)
+Go: $go_version
+Python3: $(python3 --version | cut -d ' ' -f 2)"
 }
 
 function listening() {
@@ -283,46 +258,140 @@ function listening() {
   fi
 }
 
+function n() {
+  if [[ ${1##*.} == 'ts' ]]; then
+    ts-node $@
+  else
+    node $@
+  fi
+}
+
+function o() {
+  if [[ $1 == '' ]]; then
+    open .
+  else
+    open $@
+  fi
+}
+
+function t() {
+  if [[ -f ./package.json ]]; then
+    nr test
+  else
+    cargo test
+  fi
+}
+
 function i() {
   cd ~/code/$1
 }
 
-function mc() {
-  mkdir $1 && c $1
+function gpu() {
+  local current_branch=$(git rev-parse --abbrev-ref HEAD)
+  git push --set-upstream origin $current_branch
+}
+
+function it2() {
+  local wd="$PWD"
+  local args="$@"
+
+  if [ -d "$1" ]; then
+    wd="$1"
+    args="${@:2}"
+  fi
+
+  local text="cd $wd"
+  local cmd=""
+  if [ -n "$args" ]; then
+    cmd=" && $args"
+    text="$text$cmd"
+  fi
+
+  # https://iterm2.com/documentation-scripting.html
+  # delay 1 is needed to get current session
+  osascript <<EOF
+        tell application "iTerm"
+            activate
+            delay 1
+            tell current session of current window
+                write text "$text"
+            end tell
+        end tell
+EOF
+}
+
+function sic() {
+  rg "$@" $(git diff --cached --name-only)
+}
+
+function fp() {
+  fd -I -d 1 "$@" node_modules/.pnpm/
 }
 
 # ------------------------ alias -----------------------------
-alias update_all='brew update && brew upgrade && brew upgrade --cask && brew cleanup && update-nvm && npm upgrade -g --latest && rustup update && omz update && git -C ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k pull'
+alias update_all='proxy && brew update && brew upgrade && brew upgrade --cask && brew cleanup && npm upgrade -g --latest && pnpm up -g --latest && rustup update && cargo install-update -a && omz update && git -C ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k pull'
 alias lstcp="sudo lsof -iTCP -sTCP:LISTEN -P -n"
-alias lah="lsd -lah"
+# override the oh-my-zsh defined at ~/.oh-my-zsh/lib/directories.zsh
+alias l="lsd -lah"
+alias rmdss='find . -name ".DS_Store" -type f -delete'
 
 # CEP debug mode
 alias enable_cep_debug="defaults write com.adobe.CSXS.11 PlayerDebugMode 1"
 alias disable_cep_debug="defaults write com.adobe.CSXS.11 PlayerDebugMode 0"
+alias killcep="pkill -9 CEPHtmlEngine"
 
 # git
 alias ga="git add -A"
 alias gp="git push"
+alias gpf="git push --force"
 alias gpl="git pull"
+alias gpm="git pull origin master"
 alias gcm="git commit -m"
+alias gam="ga && gcm"
+alias gca="git commit --amend"
 alias gc="git checkout"
 alias gcb="git checkout -b"
 alias gcl="git clone"
+alias gr="git reset --hard"
+alias m="git checkout master"
 
 # vscode
-alias rc="code-insiders ~/.zshrc"
-alias c="code-insiders"
+alias c="code"
+alias rc="c ~/.zshrc"
+alias hosts="c /etc/hosts"
 
 # node package manager
+alias p="pnpm"
+alias pyr="p why -r"
+alias f="pnpm --filter"
+alias nido="ni -D --prefer-offline"
+alias niod="ni --prefer-offline -D"
+alias niw="p -w add --prefer-offline"
+alias niwd="p -w add --prefer-offline -D"
 alias nid="ni -D"
 alias nio="ni --prefer-offline"
 alias s="nr start"
+alias upkgs="ncu -u -t minor"
+alias b="nr build"
+alias dev="nr dev"
+alias rmpkgs="rm -rf node_modules && pnpm -r exec rm -rf node_modules"
+
+# cargo
+alias cr="cargo run"
 
 # ------------------------ environment variables -----------------------------
 export PNPM_HOME="/Users/yutengjing/Library/pnpm"
 export PATH="$PNPM_HOME:$PATH"
 
+# pyenv
+# export PYENV_ROOT="$HOME/.pyenv"
+# command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+# eval "$(pyenv init -)"
+
 # set node_modules/.bin to path when in VSCode terminal
 if [[ "$TERM_PROGRAM" == "vscode" && -d "$PWD/node_modules/.bin" ]]; then
   export PATH="$PWD/node_modules/.bin:$PATH"
 fi
+
+export VUE_EDITOR=code
+
