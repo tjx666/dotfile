@@ -97,6 +97,7 @@ plugins+=(
   zsh-syntax-highlighting
   you-should-use
   fzf-tab
+  # pnpm-shell-completion
 )
 
 # load plugins in none vscode integrated terminal
@@ -328,8 +329,47 @@ function fp() {
   fd -I -d 1 "$@" node_modules/.pnpm/
 }
 
+# 20x faster replacement for "npm run"
+# - It supports scripts executing a built-in shell function
+# - It supports scripts executing a binary found in PATH
+# - It supports scripts executing a binary found in node_modules
+# - It supports passing arguments and options to scripts
+# - It supports reading scripts either via ripgrep (fast) or via jq (slower, but safer)
+# - It handles gracefully when a script has not been found
+# - It handles gracefully when "&", "&&", "|", "||", or ENV variables are used, falling back to "npm run"
+
+#TODO: Make this work with "&&" too, which would enable this to speed up significantly more scripts
+#TODO: Find something that's just as fast as ripgrep, but just as safe as jq
+
+function update-all() {
+  proxy
+  brew update
+  brew upgrade
+  brew upgrade --cask
+  brew cleanup
+  # js
+  corepack prepare npm@latest --activate
+  corepack prepare pnpm@latest --activate
+  npm upgrade -g --latest
+  # pnpm up -g --latest
+  var=$(pnpm dlx npm-check-updates -gp pnpm | grep -i "pnpm -g add")
+  eval "$var"
+  bun upgrade
+  # other languages
+  rustup update
+  go-global-update
+  cargo install-update -a
+  # zsh
+  git -C ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k pull
+  git -C ~/.oh-my-zsh/custom/plugins/zsh-npm-scripts-autocomplete pull
+  git -C ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions pull
+  git -C ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting pull
+  git -C $ZSH_CUSTOM/plugins/you-should-use pull
+  git -C ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/fzf-tab pull
+  omz update
+}
+
 # ------------------------ alias -----------------------------
-alias update_all='proxy && brew update && brew upgrade && brew upgrade --cask && brew cleanup && npm upgrade -g --latest && pnpm up -g --latest && rustup update && cargo install-update -a && omz update && git -C ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k pull'
 alias lstcp="sudo lsof -iTCP -sTCP:LISTEN -P -n"
 # override the oh-my-zsh defined at ~/.oh-my-zsh/lib/directories.zsh
 alias l="lsd -lah"
@@ -349,6 +389,7 @@ alias gpm="git pull origin master"
 alias gcm="git commit -m"
 alias gam="ga && gcm"
 alias gca="git commit --amend"
+alias gl="git log --pretty='%C(yellow)%h %C(cyan)%cd %Cblue%aN%C(auto)%d %Creset%s' --graph --date=relative --date-order"
 alias gc="git checkout"
 alias gcb="git checkout -b"
 alias gcl="git clone"
@@ -363,6 +404,7 @@ alias hosts="c /etc/hosts"
 # node package manager
 alias p="pnpm"
 alias pyr="p why -r"
+alias pyrl="p why -r --long"
 alias f="pnpm --filter"
 alias nido="ni -D --prefer-offline"
 alias niod="ni --prefer-offline -D"
@@ -384,9 +426,9 @@ export PNPM_HOME="/Users/yutengjing/Library/pnpm"
 export PATH="$PNPM_HOME:$PATH"
 
 # pyenv
-# export PYENV_ROOT="$HOME/.pyenv"
-# command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-# eval "$(pyenv init -)"
+export PYENV_ROOT="$HOME/.pyenv"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
 
 # set node_modules/.bin to path when in VSCode terminal
 if [[ "$TERM_PROGRAM" == "vscode" && -d "$PWD/node_modules/.bin" ]]; then
@@ -395,3 +437,12 @@ fi
 
 export VUE_EDITOR=code
 
+export GITHUB_TOKEN=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
+export GITHUB_ACCESS_TOKEN=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
+
+export skip_i18n=true
+# bun completions
+[ -s "/Users/yutengjing/.bun/_bun" ] && source "/Users/yutengjing/.bun/_bun"
+
+# editor-next
+export SKIP_EDITOR_NEXT_I18N=true

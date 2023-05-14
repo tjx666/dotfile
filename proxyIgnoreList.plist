@@ -14,12 +14,12 @@
 
         <!-- 稿定 -->
         <string>*.gaoding.com</string>
-        <string>*.fe.gaoding.com</string>
         <string>*.gaoding.cn</string>
         <string>*.huanleguang.com</string>
         <string>*.hlgdata.com</string>
         <string>*.dancf.com</string>
         <string>*.udesk.cn</string>
+        <string>gdce.yuque.com</string>
 
         <!-- 知乎 -->
         <string>*.zhihu.com</string>
@@ -29,6 +29,7 @@
         <string>*.bytescm.com</string>
         <string>juejin.cn</string>
         <string>*.juejin.cn</string>
+        <string>*.byteimg.com</string>
 
         <!-- b 站 -->
         <string>*.bilibili.com</string>
