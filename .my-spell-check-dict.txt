@@ -145,6 +145,7 @@ rspack
 rustacean
 rustaceans
 rustc
+rustup
 scpt
 scrollbars
 SMARTOBJECT
