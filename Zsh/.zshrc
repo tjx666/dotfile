@@ -1,24 +1,20 @@
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
-[[ -f ~/.cache/p10k-instant-prompt-yutengjing.zsh ]] && source ~/.cache/p10k-instant-prompt-yutengjing.zsh
-
-export PATH="/usr/local/sbin:$PATH"
-
-# zsh-syntax-highlighting
-ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor regexp root line)
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
 
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH="/Users/yutengjing/.oh-my-zsh"
+export ZSH="$HOME/.oh-my-zsh"
 
-# Set name f the theme to load --- if set to "random", it will
+# Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-# ZSH_THEME="random"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Set list of themes to pick from when loading at random
@@ -34,17 +30,16 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Case-sensitive completion must be off. _ and - will be interchangeable.
 # HYPHEN_INSENSITIVE="true"
 
-# Uncomment the following line to disable bi-weekly auto-update checks.
-# DISABLE_AUTO_UPDATE="true"
-
-# Uncomment the following line to automatically update without prompting.
-# DISABLE_UPDATE_PROMPT="true"
+# Uncomment one of the following lines to change the auto-update behavior
+# zstyle ':omz:update' mode disabled  # disable automatic updates
+# zstyle ':omz:update' mode auto      # update automatically without asking
+# zstyle ':omz:update' mode reminder  # just remind me to update when it's time
 
 # Uncomment the following line to change how often to auto-update (in days).
-# export UPDATE_ZSH_DAYS=13
+# zstyle ':omz:update' frequency 13
 
 # Uncomment the following line if pasting URLs and other text is messed up.
-# DISABLE_MAGIC_FUNCTIONS=true
+# DISABLE_MAGIC_FUNCTIONS="true"
 
 # Uncomment the following line to disable colors in ls.
 # DISABLE_LS_COLORS="true"
@@ -56,6 +51,9 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # ENABLE_CORRECTION="true"
 
 # Uncomment the following line to display red dots whilst waiting for completion.
+# You can also set it to another string to have that shown instead of the default red dots.
+# e.g. COMPLETION_WAITING_DOTS="%F{yellow}waiting...%f"
+# Caution: this setting can cause issues with multiline prompts in zsh < 5.7.1 (see #5765)
 # COMPLETION_WAITING_DOTS="true"
 
 # Uncomment the following line if you want to disable marking untracked files
@@ -81,23 +79,15 @@ HIST_STAMPS="yyyy-mm-dd"
 # Add wisely, as too many plugins slow down shell startup.
 # official
 plugins+=(
-  alias-finder
+  node
+  web-search
+  # alias-finder
   command-not-found
   # hitokoto
   rust
   safe-paste
   sudo
   themes
-)
-
-# unofficial
-plugins+=(
-  zsh-npm-scripts-autocomplete
-  zsh-autosuggestions
-  zsh-syntax-highlighting
-  you-should-use
-  fzf-tab
-  # pnpm-shell-completion
 )
 
 # load plugins in none vscode integrated terminal
@@ -107,6 +97,16 @@ if [[ "$TERM_PROGRAM" != "vscode" ]]; then
   )
 fi
 
+# unofficial
+plugins+=(
+  zsh-npm-scripts-autocomplete
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+  # you-should-use
+  fzf-tab
+  # pnpm-shell-completion
+)
+
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
@@ -114,7 +114,7 @@ source $ZSH/oh-my-zsh.sh
 # export MANPATH="/usr/local/man:$MANPATH"
 
 # You may need to manually set your language environment
-export LANG=en_US.UTF-8
+# export LANG=en_US.UTF-8
 
 # Preferred editor for local and remote sessions
 # if [[ -n $SSH_CONNECTION ]]; then
@@ -135,40 +135,17 @@ export LANG=en_US.UTF-8
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+# language
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+export LC_CTYPE=en_US.UTF-8
+
 
 # 将下划线和中划线视为和普通字母一样作为一个单词的一部分
 WORDCHARS+='_-'
 
 # bindkey
 bindkey '^[[1;3B' autosuggest-execute
-
-# language
-export LC_ALL=en_US.UTF-8
-export LC_CTYPE=en_US.UTF-8
-
-# fnm
-eval "$(fnm env --use-on-cd --log-level error)"
-# https://github.com/Schniz/fnm/issues/491#issuecomment-878187041
-fpath+=~/.zfunc
-
-# fzf
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-bindkey "ç" fzf-cd-widget
-zstyle ':fzf-tab:*' accept-line alt-down
-
-# iterm2
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-
-# gvm
-[[ -s "/Users/yutengjing/.gvm/scripts/gvm" ]] && source "/Users/yutengjing/.gvm/scripts/gvm"
-
-# pnpm completion
-[[ -f ~/.config/tabtab/zsh/__tabtab.zsh ]] && . ~/.config/tabtab/zsh/__tabtab.zsh || true
-
-# zoxide
-eval "$(zoxide init zsh)"
 
 # ------------------------ proxy -----------------------------
 TIMEFMT=$'\nTime %E Memory %MKiB CPU %P'
@@ -184,6 +161,7 @@ function proxyWithoutPrompt() {
   export ALL_PROXY="socks5://127.0.0.1:7890"
   export NO_PROXY="localhost,127.0.0.1,172.16.5.83,.gaoding.com,.gaoding.cn,.huanleguang.com"
 }
+# proxyWithoutPrompt
 
 function proxy() {
   proxyWithoutPrompt
@@ -259,6 +237,12 @@ function listening() {
   fi
 }
 
+function get-ip() {
+  local ip=$(ipconfig getifaddr en0)
+  echo $ip
+  echo $ip | pbcopy
+}
+
 function n() {
   if [[ ${1##*.} == 'ts' ]]; then
     ts-node $@
@@ -329,36 +313,25 @@ function fp() {
   fd -I -d 1 "$@" node_modules/.pnpm/
 }
 
-# 20x faster replacement for "npm run"
-# - It supports scripts executing a built-in shell function
-# - It supports scripts executing a binary found in PATH
-# - It supports scripts executing a binary found in node_modules
-# - It supports passing arguments and options to scripts
-# - It supports reading scripts either via ripgrep (fast) or via jq (slower, but safer)
-# - It handles gracefully when a script has not been found
-# - It handles gracefully when "&", "&&", "|", "||", or ENV variables are used, falling back to "npm run"
-
-#TODO: Make this work with "&&" too, which would enable this to speed up significantly more scripts
-#TODO: Find something that's just as fast as ripgrep, but just as safe as jq
-
 function update-all() {
-  proxy
+  # proxy
   brew update
   brew upgrade
   brew upgrade --cask
   brew cleanup
+  
   # js
   corepack prepare npm@latest --activate
   corepack prepare pnpm@latest --activate
   npm upgrade -g --latest
-  # pnpm up -g --latest
-  var=$(pnpm dlx npm-check-updates -gp pnpm | grep -i "pnpm -g add")
-  eval "$var"
-  bun upgrade
+  pnpm up -g --latest
+  # bun upgrade
+
   # other languages
-  rustup update
-  go-global-update
-  cargo install-update -a
+  # rustup update
+  # go-global-update
+  # cargo install-update -a
+
   # zsh
   git -C ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k pull
   git -C ~/.oh-my-zsh/custom/plugins/zsh-npm-scripts-autocomplete pull
@@ -369,11 +342,20 @@ function update-all() {
   omz update
 }
 
+function remove-types() {
+  swc $1 -C jsc.target=esnext -d .
+}
+
 # ------------------------ alias -----------------------------
 alias lstcp="sudo lsof -iTCP -sTCP:LISTEN -P -n"
 # override the oh-my-zsh defined at ~/.oh-my-zsh/lib/directories.zsh
 alias l="lsd -lah"
 alias rmdss='find . -name ".DS_Store" -type f -delete'
+function v2gif() {
+    # Based on https://gist.github.com/SheldonWangRJT/8d3f44a35c8d1386a396b9b49b43c385
+    output_file="${1%.*}.gif"
+    ffmpeg -y -i "$1" -v quiet -vf scale=iw/2:ih/2 -pix_fmt rgb8 -r 10 "$output_file" && gifsicle -O3 "$output_file" -o "$output_file"
+}
 
 # CEP debug mode
 alias enable_cep_debug="defaults write com.adobe.CSXS.11 PlayerDebugMode 1"
@@ -397,7 +379,7 @@ alias gr="git reset --hard"
 alias m="git checkout master"
 
 # vscode
-alias c="code"
+alias c="code-insiders"
 alias rc="c ~/.zshrc"
 alias hosts="c /etc/hosts"
 
@@ -421,28 +403,38 @@ alias rmpkgs="rm -rf node_modules && pnpm -r exec rm -rf node_modules"
 # cargo
 alias cr="cargo run"
 
-# ------------------------ environment variables -----------------------------
+# https://github.com/ajeetdsouza/zoxide
+alias j=zoxide
+
+
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# fnm
+export PATH="/Users/yutengjing/Library/Application Support/fnm:$PATH"
+eval "`fnm env --use-on-cd --log-level error`"
+fpath+=~/.zfunc
+
+# pnpm
 export PNPM_HOME="/Users/yutengjing/Library/pnpm"
-export PATH="$PNPM_HOME:$PATH"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
 
-# pyenv
-export PYENV_ROOT="$HOME/.pyenv"
-command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
 
+# ------------------------ environment variables -----------------------------
 # set node_modules/.bin to path when in VSCode terminal
 if [[ "$TERM_PROGRAM" == "vscode" && -d "$PWD/node_modules/.bin" ]]; then
   export PATH="$PWD/node_modules/.bin:$PATH"
 fi
 
-export VUE_EDITOR=code
+export VUE_EDITOR=code-insiders
 
-export GITHUB_TOKEN=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
-export GITHUB_ACCESS_TOKEN=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
+# export PNPM_GLOBAL_NODE_MODULES=$(pnpm root -g
 
-export skip_i18n=true
-# bun completions
-[ -s "/Users/yutengjing/.bun/_bun" ] && source "/Users/yutengjing/.bun/_bun"
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
-# editor-next
-export SKIP_EDITOR_NEXT_I18N=true
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
