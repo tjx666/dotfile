@@ -1,0 +1,13 @@
+right_format = '$nodejs$package'
+
+command_timeout = 1000
+
+[nodejs]
+format = '[$symbol$version]($style)'
+
+[package]
+display_private = true
+format = " [$symbol$version]($style)"
+
+[gcloud]
+disabled = true
